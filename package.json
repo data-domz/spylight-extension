@@ -1,12 +1,17 @@
 {
-  "name": "spyguy-extension",
+  "name": "spyguy-search-highlighter",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Search and highlight words/phrases on the current page.",
+  "main": "background.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "echo 'No start script specified'",
+    "build": "echo 'No build script specified'"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "author": "Dom",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-plugin-chrome": "^0.4.0"
+  },
+  "dependencies": {}
 }

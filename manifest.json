@@ -1,13 +1,14 @@
 {
-  "manifest_version": 2,
-  "name": "SpyGuy",
+  "manifest_version": 3,
+  "name": "SpyGuy Search Highlighter",
   "version": "1.0",
-  "description": "Highlight words/phrases based on user preferences.",
-  "permissions": [
-    "activeTab",
-    "storage"
-  ],
-  "browser_action": {
+  "description": "Search and highlight words/phrases on the current page.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
@@ -15,19 +16,22 @@
       "128": "icons/icon128.png"
     }
   },
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  },
-  "background": {
-    "scripts": ["background.js"],
-    "persistent": false
-  },
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "css": ["styles.css"]
     }
-  ]
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  }
 }

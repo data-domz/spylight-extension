@@ -1,38 +1,34 @@
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById("highlight-questions").addEventListener("click", () => {
-        console.log("Highlight Questions button clicked");
-        highlight("?", "highlight-question");
+document.getElementById('searchButton').addEventListener('click', () => {
+  const searchTerm = document.getElementById('searchTerm').value;
+  if (searchTerm) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        func: highlightMatches,
+        args: [searchTerm]
+      });
     });
-
-    document.getElementById("highlight-definitions").addEventListener("click", () => {
-        console.log("Highlight Definitions button clicked");
-        highlight("definition", "highlight-definition");
-    });
-
-    document.getElementById("highlight-keywords").addEventListener("click", () => {
-        console.log("Highlight Keywords button clicked");
-        highlight("keyword", "highlight-keyword");
-    });
+  }
 });
 
-function highlight(text, className) {
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        console.log("Sending message to content script");
-        chrome.scripting.executeScript({
-            target: {tabId: tabs[0].id},
-            function: highlightTextOnPage,
-            args: [text, className]
-        }, (results) => {
-            if (chrome.runtime.lastError) {
-                console.error(chrome.runtime.lastError);
-            } else {
-                console.log("Highlighting done:", results);
-            }
-        });
-    });
-}
+function highlightMatches(searchTerm) {
+  const regex = new RegExp(`(${searchTerm})`, 'gi');
+  
+  // Traverse the DOM and highlight matches
+  function traverseAndHighlight(node) {
+    if (node.nodeType === 3) { // Text node
+      const text = node.nodeValue;
+      if (regex.test(text)) {
+        const span = document.createElement('span');
+        span.innerHTML = text.replace(regex, '<span class="highlight">$1</span>');
+        node.parentNode.replaceChild(span, node);
+      }
+    } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE') { // Element node, excluding script and style tags
+      for (let child = node.firstChild; child; child = child.nextSibling) {
+        traverseAndHighlight(child);
+      }
+    }
+  }
 
-function highlightTextOnPage(text, className) {
-    const regex = new RegExp(`\\b${text}\\b`, 'gi');
-    document.body.innerHTML = document.body.innerHTML.replace(regex, `<span class="${className}">${text}</span>`);
+  traverseAndHighlight(document.body);
 }
