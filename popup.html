@@ -18,12 +18,20 @@
       color: white;
       border: none;
       cursor: pointer;
+      margin-bottom: 10px; /* Add margin for spacing between buttons */
+    }
+    .highlight {
+      background-color: yellow;
+    }
+    .highlight-question {
+      background-color: lightblue;
     }
   </style>
 </head>
 <body>
   <input type="text" id="searchTerm" placeholder="Enter word or phrase">
   <button id="searchButton">Search</button>
+  <button id="highlightQuestionsButton">Highlight Questions</button>
 
   <script src="popup.js"></script>
 </body>

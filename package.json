@@ -8,7 +8,7 @@
     "build": "echo 'No build script specified'"
   },
   "author": "Dom",
-  "license": "MIT",
+  "license": "UCLA",
   "devDependencies": {
     "eslint": "^7.32.0",
     "eslint-plugin-chrome": "^0.4.0"
