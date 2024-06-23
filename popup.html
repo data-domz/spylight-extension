@@ -6,14 +6,22 @@
       font-family: Arial, sans-serif;
       padding: 10px;
     }
+    #toolbar {
+      width: 100%; /* Make the toolbar full width */
+      padding: 10px; /* Add some padding */
+      background-color: #f0f0f0; /* Light background color */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a shadow for depth */
+      margin-bottom: 20px; /* Add margin at the bottom */
+    }
     input[type="text"] {
-      width: calc(100% - 20px);
-      padding: 5px;
+      width: calc(100% - 20px); /* Full width minus padding */
+      padding: 10px; /* Add padding */
       margin-bottom: 10px;
+      box-sizing: border-box; /* Include padding in the element's total width and height */
     }
     button {
       width: 100%;
-      padding: 5px;
+      padding: 10px; /* Add padding */
       background-color: #4CAF50;
       color: white;
       border: none;
@@ -29,9 +37,11 @@
   </style>
 </head>
 <body>
-  <input type="text" id="searchTerm" placeholder="Enter word or phrase">
-  <button id="searchButton">Search</button>
-  <button id="highlightQuestionsButton">Highlight Questions</button>
+  <div id="toolbar">
+    <input type="text" id="searchTerm" placeholder="Enter word or phrase">
+    <button id="searchButton">Search</button>
+    <button id="highlightQuestionsButton">Highlight Questions</button>
+  </div>
 
   <script src="popup.js"></script>
 </body>

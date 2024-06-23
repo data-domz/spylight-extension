@@ -1,4 +1,6 @@
 .highlight {
     background-color: yellow;
   }
-  
+.highlight-question {
+    background-color: pink;
+}

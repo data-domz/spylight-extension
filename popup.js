@@ -15,12 +15,14 @@ document.getElementById('highlightQuestionsButton').addEventListener('click', ()
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     chrome.scripting.executeScript({
       target: { tabId: tabs[0].id },
-      func: highlightQuestions
+        func: highlightQuestions
     });
   });
 });
 
 function highlightMatches(searchTerm) {
+  console.log("highlightMatches function called with searchTerm:", searchTerm);
+
   function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
   }
@@ -36,9 +38,7 @@ function highlightMatches(searchTerm) {
 
   const escapedSearchTerm = escapeRegExp(searchTerm);
   const regex = new RegExp(`(${escapedSearchTerm})`, 'gi');
-  console.log("Search Term:", searchTerm); // Debugging line
-  console.log("Escaped Search Term:", escapedSearchTerm); // Debugging line
-  console.log("Regex:", regex); // Debugging line
+  console.log("Regex for matching:", regex); // Debugging line
 
   // Remove old highlights
   removeHighlights();
@@ -49,6 +49,7 @@ function highlightMatches(searchTerm) {
       const text = node.nodeValue;
       const matches = text.match(regex);
       if (matches) {
+        console.log("Matches found:", matches); // Debugging line
         const fragment = document.createDocumentFragment();
         let lastIndex = 0;
 
@@ -79,7 +80,7 @@ function highlightMatches(searchTerm) {
 }
 
 function highlightQuestions() {
-  console.log("Highlight Questions function called"); // Debugging line
+  console.log("highlightQuestions function called");
 
   function removeHighlights() {
     const highlights = document.querySelectorAll('.highlight, .highlight-question');
@@ -90,26 +91,26 @@ function highlightQuestions() {
     });
   }
 
-  const regex = /[^.!?]*\?+/g;
+  // Regular expression to identify questions
+  const questionRegex = /(\b(who|what|where|when|why|how)\b.*?\?|.*?\?)/gi;
+  console.log("Regex for identifying questions:", questionRegex); // Debugging line
 
   // Remove old highlights
   removeHighlights();
 
   // Traverse the DOM and highlight questions
-  function traverseAndHighlight(node) {
+  function traverseAndHighlightQuestions(node) {
     if (node.nodeType === 3) { // Text node
       const text = node.nodeValue;
-      const matches = text.match(regex);
+      const matches = text.match(questionRegex);
       if (matches) {
-        console.log("Matched questions:", matches); // Debugging line
+        console.log("Question matches found:", matches); // Debugging line
         const fragment = document.createDocumentFragment();
         let lastIndex = 0;
 
         matches.forEach((match) => {
           const matchIndex = text.indexOf(match, lastIndex);
-          if (matchIndex > lastIndex) {
-            fragment.appendChild(document.createTextNode(text.substring(lastIndex, matchIndex)));
-          }
+          fragment.appendChild(document.createTextNode(text.substring(lastIndex, matchIndex)));
 
           const span = document.createElement('span');
           span.className = 'highlight-question';
@@ -125,10 +126,10 @@ function highlightQuestions() {
       }
     } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE') { // Element node, excluding script and style tags
       for (let child = node.firstChild; child; child = child.nextSibling) {
-        traverseAndHighlight(child);
+        traverseAndHighlightQuestions(child);
       }
     }
   }
 
-  traverseAndHighlight(document.body);
+  traverseAndHighlightQuestions(document.body);
 }
