@@ -4,3 +4,12 @@
 .highlight-question {
     background-color: pink;
 }
+.highlight-number {
+    background-color: lightgreen;
+}
+.highlight-definition {
+  background-color: lightcoral;
+}
+.highlight-quote {
+  background-color: lightseagreen;
+}
