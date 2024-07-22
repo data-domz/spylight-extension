@@ -1,15 +1,19 @@
 .highlight {
-    background-color: yellow;
-  }
+  background-color: yellow;
+}
+
 .highlight-question {
-    background-color: pink;
+  background-color: pink;
 }
+
 .highlight-number {
-    background-color: lightgreen;
+  background-color: lightgreen;
 }
+
 .highlight-definition {
   background-color: lightcoral;
 }
+
 .highlight-quote {
   background-color: lightseagreen;
 }

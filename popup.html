@@ -5,28 +5,57 @@
     body {
       font-family: Arial, sans-serif;
       padding: 10px;
+      width: 350px; /* Set a fixed width for the popup */
+    }
+    #container {
+      display: flex;
     }
     #toolbar {
-      width: 100%; /* Make the toolbar full width */
-      padding: 10px; /* Add some padding */
-      background-color: #f0f0f0; /* Light background color */
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a shadow for depth */
-      margin-bottom: 20px; /* Add margin at the bottom */
+      width: 40%; /* Increase the width of the toolbar */
+      padding: 10px;
+      background-color: #f0f0f0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-right: 20px;
+      border-radius: 8px;
     }
     input[type="text"] {
-      width: calc(100% - 20px); /* Full width minus padding */
-      padding: 10px; /* Add padding */
+      width: 100%;
+      padding: 10px;
       margin-bottom: 10px;
-      box-sizing: border-box; /* Include padding in the element's total width and height */
+      box-sizing: border-box;
+      border-radius: 4px;
+      border: 1px solid #ccc;
     }
     button {
       width: 100%;
-      padding: 10px; /* Add padding */
-      background-color: #4CAF50;
-      color: white;
+      padding: 15px 0; /* Adjusted padding for longer buttons */
+      color: black;
+      font-size: 12px; /* Smaller font size */
+      font-weight: bold;
       border: none;
       cursor: pointer;
-      margin-bottom: 10px; /* Add margin for spacing between buttons */
+      margin-bottom: 10px;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+    }
+    .word-search {
+      background-color: #61dafb;
+    }
+    .highlight-questions {
+      background-color: #ff6666;
+    }
+    .clear-highlights {
+      background-color: #ff4444;
+    }
+    .word-search:hover {
+      background-color: #21a1f1;
+    }
+    .highlight-questions:hover {
+      background-color: #ff3333;
+    }
+    .clear-highlights:hover {
+      background-color: #ff0000;
     }
     .highlight {
       background-color: yellow;
@@ -34,20 +63,47 @@
     .highlight-question {
       background-color: pink;
     }
-    .highlight-number {
-      background-color: green;
+    #history {
+      width: 50%; /* Increase the width of the history section */
+      background-color: #f9f9f9;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    #history h3 {
+      margin: 0 0 10px;
+      font-size: 1.2em;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+    .history-item {
+      margin-bottom: 5px;
+    }
+    .history-item span {
+      display: block;
+      font-weight: bold;
+    }
+    .history-item .count {
+      color: #666;
+      font-weight: normal;
     }
   </style>
 </head>
 <body>
-  <div id="toolbar">
-    <input type="text" id="searchTerm" placeholder="Enter word or phrase">
-    <button id="searchButton">Search</button>
-    <button id="highlightQuestionsButton">Highlight Questions</button>
-    <button id="highlightNumbersButton">Highlight Numbers</button>
-    <button id="highlightDefinitionsButton">Highlight Definitions</button>
-    <button id="highlightQuotesButton">Highlight Quotes</button>
-    <button id="clearHighlightsButton">Clear Highlights</button>
+  <div id="container">
+    <div id="toolbar">
+      <input type="text" id="searchTerm" placeholder="Enter word or phrase">
+      <button id="searchButton" class="word-search">Word Search</button>
+      <button id="highlightQuestionsButton" class="highlight-questions">Highlight Questions</button>
+      <button id="clearHighlightsButton" class="clear-highlights">Clear Highlights</button>
+    </div>
+    <div id="history">
+      <h3>History</h3>
+      <div id="historyList"></div>
+    </div>
   </div>
 
   <script src="popup.js"></script>
