@@ -1,19 +1,44 @@
+/* General highlight styles */
 .highlight {
   background-color: yellow;
 }
 
-.highlight-question {
-  background-color: pink;
+.highlight-current {
+  background-color: lightpink;
 }
 
-.highlight-number {
+/* Question highlighting */
+.highlight-questions {
   background-color: lightgreen;
 }
 
-.highlight-definition {
+.highlight-questions-current {
+  background-color: lightpink;
+}
+
+/* Number highlighting */
+.highlight-numbers {
+  background-color: lightblue;
+}
+
+.highlight-numbers-current {
+  background-color: lightpink;
+}
+
+/* Date highlighting */
+.highlight-dates {
   background-color: lightcoral;
 }
 
-.highlight-quote {
-  background-color: lightseagreen;
+.highlight-dates-current {
+  background-color: lightpink;
+}
+
+/* Author highlighting */
+.highlight-authors {
+  background-color: lightblue;
+}
+
+.highlight-authors-current {
+  background-color: yellow;
 }

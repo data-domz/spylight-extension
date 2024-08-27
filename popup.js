@@ -1,160 +1,201 @@
-document.getElementById('searchButton').addEventListener('click', () => {
-  const searchTerm = document.getElementById('searchTerm').value;
-  if (searchTerm) {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.scripting.executeScript({
-        target: { tabId: tabs[0].id },
-        func: highlightMatches,
-        args: [searchTerm]
-      }, (results) => {
-        const count = results[0].result;
-        updateHistory('Search', searchTerm, count);
-      });
+document.addEventListener('DOMContentLoaded', function() {
+    let currentMatchIndex = -1;
+    let matches = [];
+    const navigationButtons = document.getElementById('navigationButtons');
+    const historyBox = document.getElementById('historyContent');
+
+    // Hide navigation buttons initially
+    navigationButtons.style.display = 'none';
+
+    document.getElementById('searchButton').addEventListener('click', async () => {
+        console.log('Search button clicked');
+        const searchTerm = document.getElementById('searchTerm').value;
+        if (searchTerm) {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            const response = await chrome.tabs.sendMessage(tab.id, { action: "search", searchTerm });
+            if (response && response.matches) {
+                matches = response.matches;
+                currentMatchIndex = 0;
+                resetHighlightFlags();
+                console.log('Search matches:', matches);
+                updateHistory(`Found ${matches.length} matches for "${searchTerm}"`);
+
+                if (matches.length > 1) {
+                    navigationButtons.style.display = 'flex';
+                } else {
+                    navigationButtons.style.display = 'none';
+                }
+            } else {
+                console.error('No matches found or an error occurred.');
+            }
+        }
     });
-  }
-});
 
-document.getElementById('highlightQuestionsButton').addEventListener('click', () => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.scripting.executeScript({
-      target: { tabId: tabs[0].id },
-      func: highlightQuestions
-    }, () => {
-      updateHistory('Highlight Questions', 'Questions');
+    document.getElementById('nextButton').addEventListener('click', async () => {
+        if (matches.length > 1) {
+            const prevMatchIndex = currentMatchIndex;
+            currentMatchIndex = (currentMatchIndex + 1) % matches.length;
+
+            console.log('Next button clicked:', currentMatchIndex);
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            await chrome.tabs.sendMessage(tab.id, { action: "highlightPrevious", prevMatchIndex });
+            await chrome.tabs.sendMessage(tab.id, { action: "next", currentMatchIndex });
+            highlightHistoryItem(currentMatchIndex);
+        }
     });
-  });
-});
 
-document.getElementById('clearHighlightsButton').addEventListener('click', () => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.scripting.executeScript({
-      target: { tabId: tabs[0].id },
-      func: clearHighlights
+    document.getElementById('prevButton').addEventListener('click', async () => {
+        if (matches.length > 1) {
+            const prevMatchIndex = currentMatchIndex;
+            currentMatchIndex = (currentMatchIndex - 1 + matches.length) % matches.length;
+
+            console.log('Previous button clicked:', currentMatchIndex);
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            await chrome.tabs.sendMessage(tab.id, { action: "highlightPrevious", prevMatchIndex });
+            await chrome.tabs.sendMessage(tab.id, { action: "next", currentMatchIndex });
+            highlightHistoryItem(currentMatchIndex);
+        }
     });
-  });
-});
 
-function highlightMatches(searchTerm) {
-  function escapeRegExp(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
+    document.getElementById('highlightQuestionsButton').addEventListener('click', async () => {
+        console.log('Highlight Questions button clicked');
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        const response = await chrome.tabs.sendMessage(tab.id, { action: "highlightQuestions" });
+        if (response && response.matches) {
+            matches = response.matches;
+            currentMatchIndex = 0;
+            resetHighlightFlags();
+            isQuestionHighlighting = true;
+            console.log('Highlight questions matches:', matches);
+            updateHistory(`Found and highlighted ${response.questionCount} questions`, matches);
 
-  function removeHighlights() {
-    const highlights = document.querySelectorAll('.highlight, .highlight-question, .highlight-number, .highlight-definition, .highlight-quote');
-    highlights.forEach((highlight) => {
-      const parent = highlight.parentNode;
-      parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
-      parent.normalize();
+            if (matches.length > 1) {
+                navigationButtons.style.display = 'flex';
+            } else {
+                navigationButtons.style.display = 'none';
+            }
+        } else {
+            console.error('No matches found or an error occurred.');
+        }
     });
-  }
 
-  const escapedSearchTerm = escapeRegExp(searchTerm);
-  const regex = new RegExp(`(${escapedSearchTerm})`, 'gi');
+    document.getElementById('highlightNumbersButton').addEventListener('click', async () => {
+        console.log('Highlight Numbers button clicked');
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        const response = await chrome.tabs.sendMessage(tab.id, { action: "highlightNumbers" });
+        if (response && response.matches) {
+            matches = response.matches;
+            currentMatchIndex = 0;
+            resetHighlightFlags();
+            isNumberHighlighting = true;
+            console.log('Highlight numbers matches:', matches);
+            updateHistory(`Found and highlighted ${response.numberCount} numbers`, matches);
 
-  removeHighlights();
+            if (matches.length > 1) {
+                navigationButtons.style.display = 'flex';
+            } else {
+                navigationButtons.style.display = 'none';
+            }
+        } else {
+            console.error('No matches found or an error occurred.');
+        }
+    });
 
-  let count = 0;
-  function traverseAndHighlight(node) {
-    if (node.nodeType === 3) {
-      const text = node.nodeValue;
-      const matches = text.match(regex);
-      if (matches) {
-        count += matches.length;
-        const fragment = document.createDocumentFragment();
-        let lastIndex = 0;
+    document.getElementById('highlightDatesButton').addEventListener('click', async () => {
+        console.log('Highlight Dates button clicked');
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        const response = await chrome.tabs.sendMessage(tab.id, { action: "highlightDates" });
+        if (response && response.matches) {
+            matches = response.matches;
+            currentMatchIndex = 0;
+            resetHighlightFlags();
+            isDateHighlighting = true;
+            console.log('Highlight dates matches:', matches);
+            updateHistory(`Found and highlighted ${response.dateCount} dates`, matches);
 
-        matches.forEach((match) => {
-          const matchIndex = text.indexOf(match, lastIndex);
-          fragment.appendChild(document.createTextNode(text.substring(lastIndex, matchIndex)));
+            if (matches.length > 1) {
+                navigationButtons.style.display = 'flex';
+            } else {
+                navigationButtons.style.display = 'none';
+            }
+        } else {
+            console.error('No matches found or an error occurred.');
+        }
+    });
 
-          const span = document.createElement('span');
-          span.className = 'highlight';
-          span.textContent = match;
-          fragment.appendChild(span);
+    document.getElementById('highlightAuthorsButton').addEventListener('click', async () => {
+        console.log('Highlight Authors button clicked');
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        const response = await chrome.tabs.sendMessage(tab.id, { action: "highlightAuthors" });
+        if (response && response.matches) {
+            matches = response.matches;
+            currentMatchIndex = 0;
+            resetHighlightFlags();
+            isAuthorHighlighting = true;
+            console.log('Highlight authors matches:', matches);
+            updateHistory(`Found and highlighted ${response.authorCount} author names`, matches);
 
-          lastIndex = matchIndex + match.length;
-        });
+            if (matches.length > 1) {
+                navigationButtons.style.display = 'flex';
+            } else {
+                navigationButtons.style.display = 'none';
+            }
+        } else {
+            console.error('No matches found or an error occurred.');
+        }
+    });
 
-        fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
-
-        node.parentNode.replaceChild(fragment, node);
-      }
-    } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE') {
-      for (let child = node.firstChild; child; child = child.nextSibling) {
-        traverseAndHighlight(child);
-      }
+    function resetHighlightFlags() {
+        isQuestionHighlighting = false;
+        isNumberHighlighting = false;
+        isDateHighlighting = false;
+        isAuthorHighlighting = false;
     }
-  }
 
-  traverseAndHighlight(document.body);
-  return count;
-}
+    function updateHistory(message, matches) {
+        historyBox.innerHTML = ''; // Clear previous history
+        const entry = document.createElement('div');
+        entry.textContent = message;
+        historyBox.appendChild(entry);
 
-function highlightQuestions() {
-  function removeHighlights() {
-    const highlights = document.querySelectorAll('.highlight, .highlight-question, .highlight-number, .highlight-definition, .highlight-quote');
-    highlights.forEach((highlight) => {
-      const parent = highlight.parentNode;
-      parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
-      parent.normalize();
-    });
-  }
+        // Create a scrollable list of matches
+        if (matches && matches.length > 0) {
+            const matchList = document.createElement('ul');
+            matchList.style.maxHeight = '200px'; // Adjust height as necessary
+            matchList.style.overflowY = 'auto';
+            matchList.style.padding = '10px';
+            matchList.style.border = '1px solid #ddd';
+            matchList.style.marginTop = '10px';
 
-  const questionRegex = /(\b(who|what|where|when|why|how)\b.*?\?|.*?\?)/gi;
+            matches.forEach((match, index) => {
+                const matchItem = document.createElement('li');
+                matchItem.textContent = match.textContent;
+                matchItem.dataset.index = index;
 
-  removeHighlights();
+                // Make list item clickable
+                matchItem.addEventListener('click', async () => {
+                    currentMatchIndex = index;
+                    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+                    await chrome.tabs.sendMessage(tab.id, { action: "highlightSpecificMatch", currentMatchIndex });
+                    highlightHistoryItem(currentMatchIndex);
+                });
 
-  function traverseAndHighlightQuestions(node) {
-    if (node.nodeType === 3) {
-      const text = node.nodeValue;
-      const matches = text.match(questionRegex);
-      if (matches) {
-        const fragment = document.createDocumentFragment();
-        let lastIndex = 0;
+                matchList.appendChild(matchItem);
+            });
 
-        matches.forEach((match) => {
-          const matchIndex = text.indexOf(match, lastIndex);
-          fragment.appendChild(document.createTextNode(text.substring(lastIndex, matchIndex)));
-
-          const span = document.createElement('span');
-          span.className = 'highlight-question';
-          span.textContent = match;
-          fragment.appendChild(span);
-
-          lastIndex = matchIndex + match.length;
-        });
-
-        fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
-
-        node.parentNode.replaceChild(fragment, node);
-      }
-    } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE') {
-      for (let child = node.firstChild; child; child = child.nextSibling) {
-        traverseAndHighlightQuestions(child);
-      }
+            historyBox.appendChild(matchList);
+        }
     }
-  }
 
-  traverseAndHighlightQuestions(document.body);
-}
-
-function clearHighlights() {
-  function removeHighlights() {
-    const highlights = document.querySelectorAll('.highlight, .highlight-question, .highlight-number, .highlight-definition, .highlight-quote');
-    highlights.forEach((highlight) => {
-      const parent = highlight.parentNode;
-      parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
-      parent.normalize();
-    });
-  }
-
-  removeHighlights();
-}
-
-function updateHistory(action, term, count) {
-  const historyList = document.getElementById('historyList');
-  const newItem = document.createElement('div');
-  newItem.className = 'history-item';
-  newItem.innerHTML = `<span>${action}: ${term}</span><span class="count">Count: ${count}</span>`;
-  historyList.appendChild(newItem);
-}
+    function highlightHistoryItem(index) {
+        const listItems = historyBox.querySelectorAll('li');
+        listItems.forEach(item => {
+            item.style.backgroundColor = '';
+        });
+        const currentItem = historyBox.querySelector(`li[data-index="${index}"]`);
+        if (currentItem) {
+            currentItem.style.backgroundColor = 'lightblue';
+            currentItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+});

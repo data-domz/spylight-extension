@@ -10,8 +10,9 @@
   "author": "Dom",
   "license": "UCLA",
   "devDependencies": {
-    "eslint": "^7.32.0",
-    "eslint-plugin-chrome": "^0.4.0"
+    "eslint": "^7.32.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "chrono-node": "^1.4.9"
+  }
 }

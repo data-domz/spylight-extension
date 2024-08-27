@@ -1,111 +1,135 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 10px;
-      width: 350px; /* Set a fixed width for the popup */
-    }
-    #container {
-      display: flex;
-    }
-    #toolbar {
-      width: 40%; /* Increase the width of the toolbar */
-      padding: 10px;
-      background-color: #f0f0f0;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      margin-right: 20px;
-      border-radius: 8px;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      box-sizing: border-box;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    button {
-      width: 100%;
-      padding: 15px 0; /* Adjusted padding for longer buttons */
-      color: black;
-      font-size: 12px; /* Smaller font size */
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-      margin-bottom: 10px;
-      border-radius: 4px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.3s;
-    }
-    .word-search {
-      background-color: #61dafb;
-    }
-    .highlight-questions {
-      background-color: #ff6666;
-    }
-    .clear-highlights {
-      background-color: #ff4444;
-    }
-    .word-search:hover {
-      background-color: #21a1f1;
-    }
-    .highlight-questions:hover {
-      background-color: #ff3333;
-    }
-    .clear-highlights:hover {
-      background-color: #ff0000;
-    }
-    .highlight {
-      background-color: yellow;
-    }
-    .highlight-question {
-      background-color: pink;
-    }
-    #history {
-      width: 50%; /* Increase the width of the history section */
-      background-color: #f9f9f9;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      max-height: 300px;
-      overflow-y: auto;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    #history h3 {
-      margin: 0 0 10px;
-      font-size: 1.2em;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
-    }
-    .history-item {
-      margin-bottom: 5px;
-    }
-    .history-item span {
-      display: block;
-      font-weight: bold;
-    }
-    .history-item .count {
-      color: #666;
-      font-weight: normal;
-    }
-  </style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            width: 400px;
+        }
+        #container {
+            display: flex;
+        }
+        #toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        #searchTerm {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px;
+            color: black;
+            font-size: 12px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        .search-button {
+            background-color: #61dafb;
+        }
+        .search-button:hover {
+            background-color: #21a1f1;
+        }
+        .highlight-questions-button {
+            background-color: #8c8cff;
+        }
+        .highlight-questions-button:hover {
+            background-color: #6666ff;
+        }
+        .highlight-numbers-button {
+            background-color: #ffa500;
+        }
+        .highlight-numbers-button:hover {
+            background-color: #ff8c00;
+        }
+        .highlight-dates-button {
+            background-color: #ff6347;
+        }
+        .highlight-dates-button:hover {
+            background-color: #ff4500;
+        }
+        #history {
+            flex-grow: 1;
+            padding: 10px;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            overflow-y: auto;
+            max-height: 300px;
+            border: 1px solid black;
+            background-color: white;
+            margin-left: 10px;
+            position: relative;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+        .highlight-current {
+            background-color: lightpink;
+        }
+        .highlight-questions {
+            background-color: lightgreen;
+        }
+        .highlight-numbers {
+            background-color: lightblue;
+        }
+        .highlight-dates {
+            background-color: lightcoral;
+        }
+        #navigationButtons {
+            display: none;
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        .nav-button {
+            padding: 10px;
+            color: black;
+            font-size: 12px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+            background-color: #ff6666;
+        }
+        .nav-button:hover {
+            background-color: #ff3333;
+        }
+    </style>
 </head>
 <body>
-  <div id="container">
-    <div id="toolbar">
-      <input type="text" id="searchTerm" placeholder="Enter word or phrase">
-      <button id="searchButton" class="word-search">Word Search</button>
-      <button id="highlightQuestionsButton" class="highlight-questions">Highlight Questions</button>
-      <button id="clearHighlightsButton" class="clear-highlights">Clear Highlights</button>
+    <div id="container">
+        <div id="toolbar">
+            <input type="text" id="searchTerm" placeholder="Enter word or phrase">
+            <button id="searchButton" class="search-button">Search</button>
+            <button id="highlightQuestionsButton" class="highlight-questions-button">Highlight Questions</button>
+            <button id="highlightNumbersButton" class="highlight-numbers-button">Highlight Numbers</button>
+            <button id="highlightDatesButton" class="highlight-dates-button">Highlight Dates</button>
+            <button id="highlightAuthorsButton" class="highlight-authors-button">Highlight Authors</button>
+        </div>
+        <div id="history">
+            <div id="historyContent"></div>
+            <div id="navigationButtons">
+                <button id="prevButton" class="nav-button">Previous</button>
+                <button id="nextButton" class="nav-button">Next</button>
+            </div>
+        </div>
     </div>
-    <div id="history">
-      <h3>History</h3>
-      <div id="historyList"></div>
-    </div>
-  </div>
-
-  <script src="popup.js"></script>
+    <script src="popup.js"></script>
 </body>
 </html>
